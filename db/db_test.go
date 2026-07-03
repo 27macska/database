@@ -40,8 +40,8 @@ func TestSetGet(t *testing.T) {
 	if got := exec(t, d, "GET", "a"); got != "1" {
 		t.Fatalf("GET = %q, want 1", got)
 	}
-	if got := exec(t, d, "GET", "missing"); got != "(nil)" {
-		t.Fatalf("GET missing = %q, want (nil)", got)
+	if got := exec(t, d, "GET", "missing"); got != "" {
+		t.Fatalf("GET missing = %q, want empty string", got)
 	}
 }
 
@@ -99,8 +99,8 @@ func TestExpireTTL(t *testing.T) {
 	}
 
 	*clock += 10
-	if got := exec(t, d, "GET", "a"); got != "(nil)" {
-		t.Fatalf("GET after expiry = %q, want (nil)", got)
+	if got := exec(t, d, "GET", "a"); got != "" {
+		t.Fatalf("GET after expiry = %q, want empty string", got)
 	}
 	if got := exec(t, d, "TTL", "a"); got != "-2" {
 		t.Fatalf("TTL on missing key = %q, want -2", got)
@@ -115,13 +115,13 @@ func TestRange(t *testing.T) {
 	exec(t, d, "MSET", "banana", "1", "apple", "2", "cherry", "3", "date", "4")
 
 	got := exec(t, d, "RANGE", "apple", "cherry")
-	want := "apple 2\nbanana 1\ncherry 3"
+	want := "apple\nbanana\ncherry\nEND"
 	if got != want {
 		t.Fatalf("RANGE = %q, want %q", got, want)
 	}
 
-	if got := exec(t, d, "RANGE", "zzz", "zzzz"); got != "(empty)" {
-		t.Fatalf("RANGE with no matches = %q, want (empty)", got)
+	if got := exec(t, d, "RANGE", "zzz", "zzzz"); got != "END" {
+		t.Fatalf("RANGE with no matches = %q, want END", got)
 	}
 }
 

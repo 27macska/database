@@ -41,7 +41,7 @@ func (d *DB) Execute(tokens []string) (string, error) {
 		}
 		e, ok := d.idx.Get(args[0], d.Clock())
 		if !ok {
-			return nilStr, nil
+			return "", nil
 		}
 		if e.Type != index.TypeString {
 			return errWrongType(), nil
@@ -129,13 +129,11 @@ func (d *DB) Execute(tokens []string) (string, error) {
 			return errArgs("RANGE"), nil
 		}
 		entries := d.idx.Range(args[0], args[1], d.Clock())
-		if len(entries) == 0 {
-			return emptyStr, nil
+		lines := make([]string, 0, len(entries)+1)
+		for _, e := range entries {
+			lines = append(lines, e.Key)
 		}
-		lines := make([]string, len(entries))
-		for i, e := range entries {
-			lines[i] = e.Key + " " + e.Value
-		}
+		lines = append(lines, "END")
 		return strings.Join(lines, "\n"), nil
 
 	case "BEGIN":
